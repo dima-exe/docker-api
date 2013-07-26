@@ -14,8 +14,6 @@ class Docker::Container
 
   # Get more information about the Container.
   request :get, :json
-  # Start the Container.
-  request :post, :start
   # Inspect the Container's changes to the filesysetem
   request :get, :changes
   # Stop the Container.
@@ -31,6 +29,13 @@ class Docker::Container
     define_method :"#{method}?" do |*args|
       begin; public_send(method, *args); rescue ServerError; end
     end
+  end
+
+  # Start the Container.
+  def start(body = {})
+    headers = { 'Content-Type' => 'application/json' }
+    resp = connection.post("/containers/#{id}/start", nil, :body => body.to_json, headers: headers)
+    Docker::Util.parse_json(resp)
   end
 
   # Wait for the current command to finish executing.
